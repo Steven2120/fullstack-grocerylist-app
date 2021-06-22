@@ -31,7 +31,7 @@ export class Grocery extends Component {
   }
 
   handleGroceryOnChange = (event) => {
-    this.state({
+    this.setState({
       groceryInput: event.target.value,
       error: null,
       errorMessage: "",
@@ -71,7 +71,7 @@ export class Grocery extends Component {
           ];
           this.setState({
             groceryList: newArray,
-            todoInput: "",
+            groceryInput: "",
           });
         } catch (e) {
           console.log(e);
@@ -89,7 +89,29 @@ export class Grocery extends Component {
         (item) => item._id !== deletedGrocery.data.payload._id
       );
       this.setState({
-        grocery: filteredArray,
+        groceryList: filteredArray,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  handleDoneByID = async (id, purchased) => {
+    try {
+      let groceryIsDoneUpdated = await axios.put(
+        `${URL}/api/grocery/update-purchased-by-id/${id}`,
+        {
+          purchased: !purchased,
+        }
+      );
+      let updatedArray = this.state.groceryList.map((item) => {
+        if (item._id === groceryIsDoneUpdated.data.payload._id) {
+          item.purchased = groceryIsDoneUpdated.data.payload.purchased;
+        }
+        return item;
+      });
+      this.setState({
+        groceryList: updatedArray,
       });
     } catch (e) {
       console.log(e);
@@ -107,7 +129,7 @@ export class Grocery extends Component {
       console.log(editedGrocery);
       let updatedGroceryArray = this.state.groceryList.map((item) => {
         if (item._id === id) {
-          item.grocery = editedGrocery.data.payload;
+          item.grocery = editedGrocery.data.payload.grocery;
         }
         return item;
       });
@@ -132,10 +154,10 @@ export class Grocery extends Component {
     }
   };
 
-  sortByDone = async (isDone) => {
+  sortByDone = async (purchased) => {
     try {
       let isPurchasedGroceryArray = await axios.get(
-        `${URL}/api/grocery/get-grocery-by-purchased?isDone=${isDone}`
+        `${URL}/api/grocery/get-grocery-by-purchased?purchased=${purchased}`
       );
       this.setState({
         groceryList: isPurchasedGroceryArray.data.payload,
@@ -169,13 +191,13 @@ export class Grocery extends Component {
           <ul>
             <li>
               <Button
-                buttonName="Sort by Date - Oldest to Newest"
+                buttonName="Sort by Date - Newest to Oldest"
                 clickFunc={() => this.sortByDate("desc")}
               />
             </li>
             <li>
               <Button
-                buttonName="Sort by Date - Newest to Oldest"
+                buttonName="Sort by Date - Oldest to Newest"
                 clickFunc={() => this.sortByDate("asc")}
               />
             </li>
@@ -188,7 +210,7 @@ export class Grocery extends Component {
             <li>
               <Button
                 buttonName="Sort by Not Purchased"
-                clickFunc={this.sortByDone("false")}
+                clickFunc={() => this.sortByDone("false")}
               />
             </li>
           </ul>
@@ -198,7 +220,7 @@ export class Grocery extends Component {
             {this.state.groceryList.map((item, index) => {
               return (
                 <GroceryList
-                  key={item.id}
+                  key={item._id}
                   item={item}
                   handleDeleteByID={this.handleDeleteByID}
                   handleDoneByID={this.handleDoneByID}

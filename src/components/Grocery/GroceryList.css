@@ -1,8 +1,12 @@
-.todolist-div {
+.grocerylist-parent{
+    display: flex;
+    justify-content: center;
+}
+.grocerylist-div {
     width: 550px;
     margin: 20px 20px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
   }
   .li-style {
     display: inline-block;
@@ -18,7 +22,7 @@
     color: white;
     border-style: none;
   }
-  #done-button {
+  #purchased-button {
     padding: 10px 10px;
     background-color: #fcdb03;
     border-radius: 5px 5px;
